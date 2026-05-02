@@ -1,0 +1,482 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="../css/harv.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="../components/components.js"></script>
+    <script src="../js/constants.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="./js/main.js"></script>
+    <script src="./js/setup.js"></script>
+    <script src="./js/players.js"></script>
+    <script src="./js/teams.js"></script>
+    <script src="./js/scores.js"></script>
+    <script>
+      function launch() {
+        launchHarvAdmin();
+      }
+    </script>
+    <title id="page-title"></title>
+  </head>
+  <body onload="launch()">
+    <div id="root">
+
+      <div id="home">
+	<div>
+	  <div class="title" id="title"></div>
+	  <div class="acronym">
+	    <span class="big">H</span>
+	    <span class="small">ighly</span>
+	    <span class="big">A</span>
+	    <span class="small">ccurate</span>
+	    <span class="big">R</span>
+	    <span class="small">esults</span>
+	    <span class="big">V</span>
+	    <span class="small">erifier</span>
+	  </div>
+	</div>
+	<div class="header subtitle">Tournaments</div>
+	<div class="admin-setup-tournament-buttons">
+	  <button id="new-tournament-button" type="submit">New Tournament</button>
+	  <!-- <button id="clone-tournament-button" type="submit">Clone Tournament</button> -->
+	</div>
+	<ul class="tournament-list" id="tournament-list"></ul>
+      </div>
+
+      <div id="tournament">
+	<div>
+	  <div id="tournament-title" class="title"></div>
+	  <div id="tournament-info" class="tournament-info"></div>
+	</div>
+	<div id="notice" class="notice"></div>
+	<div class="tournament-nav-container">
+	  <div class="tournament-nav" id="tournament-nav-top"></div>
+	  <div class="tournament-nav" id="tournament-nav-bottom"></div>
+	  <div class="tournament-nav" id="tournament-nav-events"></div>
+	</div>
+	<div class="page-header">
+	  <div class="subtitle" id="subtitle"></div>
+	  <div class="page-description" id="page-description"></div>
+	</div>
+
+	<div id="admin-setup" style="display:none">
+	  <div>
+	    <div class="header">Tournament Information</div>
+	    <div class="admin-setup-description">Enter basic information about the tournament and its director.</div>
+	    <div class="admin-setup-section">
+	      <div class="admin-form-row">
+		<div class="admin-setup-label"><label for="name">*Name:</label></div>
+		<div class="admin-setup-input"><input id="name" class="full" /></div>
+		<div class="admin-setup-note">It is not necessary to include the year.</div>
+	      </div>
+	      <div class="admin-form-row">
+		<div class="admin-setup-label"><label for="location">*Location:</label></div>
+		<div class="admin-setup-input"><input id="location" class="full" /></div>
+	      </div>
+	      <div class="admin-form-row">
+		<div class="admin-setup-label"><label for="start">*Start Date:</label></div>
+		<div class="admin-setup-input"><input type="date" id="start" /></div>
+	      </div>
+	      <div class="admin-form-row">
+		<div class="admin-setup-label"><label for="end">*End Date:</label></div>
+		<div class="admin-setup-input"><input type="date" id="end" /></div>
+	      </div>
+	      <div class="admin-form-row">
+		<div class="admin-setup-label"><label for="td_name">*Director Name:</label></div>
+		<div class="admin-setup-input"><input id="td_name" class="full" /></div>
+	      </div>
+	      <div class="admin-form-row">
+		<div class="admin-setup-label"><label for="td_email">*Director Email:</label></div>
+		<div class="admin-setup-input"><input id="td_email" class="full" /></div>
+	      </div>
+	      <div class="admin-form-row" id="passwordContainer">
+		<div class="admin-setup-label"><label for="password">*Password:</label></div>
+		<div class="admin-setup-input"><input type="password" id="password" /></div>
+		<div class="admin-setup-note">Required to perform tournament administration.</div>
+	      </div>
+	      <div class="admin-form-row">
+		<div class="admin-setup-label"><label for="url">Web Site:</label></div>
+		<div class="admin-setup-input"><input id="url" class="full" /></div>
+	      </div>
+	      <div class="admin-form-row">
+		<div class="admin-setup-label"><label for="note" class="textLabel">Note:</label></div>
+		<div class="admin-setup-input"><textarea rows="3" id="note" class="full"></textarea></div>
+		<div class="admin-setup-note">A brief description or note that will appear on the tournament page</div>
+	      </div>
+	    </div>
+	  </div>
+	  
+	  <div id="divisionSection">
+	    <div class="header">Divisions</div>
+	    <div class="admin-setup-description">Indicate below which divisions are offered in this tournament. Juniors are under 19 years old.</div>
+	    <div class="admin-form-row">
+	      <div>
+		<input type="checkbox" id="open-division" name="divisions" value="O" checked="checked" />
+		<label for="open-division">Open</label>
+	      </div>
+	      <div>
+		<input type="checkbox" id="women-division" name="divisions" value="W" />
+		<label for="women-division">Women</label>
+	      </div>
+	      <div>
+		<input type="checkbox" id="open-junior-division" name="divisions" value="OJ" />
+		<label for="open-junior-division">Open Junior</label>
+	      </div>
+	      <div>
+		<input type="checkbox" id="women-junior-division" name="divisions" value="WJ" />
+		<label for="women-junior-division">Women Junior</label>
+	      </div>
+	    </div>
+	    <div class="admin-setup-description">You can add age-related divisions to the Open and Women overall. Those divisions are: Master (over 40), Grand Master (over 50), Senior Grand Master (over 60), and Legend (over 70).</div>
+	    <div>
+	      <input type="checkbox" id="age_divisions" />
+	      <label for="age_divisions">Add age divisions</label>
+	    </div>
+	  </div>
+	  
+	  <div id="poolSection">
+	    <div class="header">Pools</div>
+	    <div class="description">If your tournament has pools, list them here (separated by commas): <input type="text" name="pools" id="pools" /></div>
+	  </div>
+	  
+	  <div id="teamSection">
+	    <div class="header">Teams</div>
+	    <div class="admin-setup-section">
+	      <div class="admin-form-row">
+		<div class="admin-setup-label">DDC team: </div>
+		<div class="admin-setup-event-label">
+		  <input type="radio" name="ddc_team" value="1" id="ddc1" />
+		  <label for="ddc1">1 player (KOC)</label>
+		</div>
+		<div class="admin-setup-event-label">
+		  <input type="radio" name="ddc_team" value="2" id="ddc2" checked />
+		  <label for="ddc2">2 players (pairs)</label>
+		</div>
+	      </div>
+	      <div class="admin-form-row">
+		<div class="admin-setup-label">Freestyle team: </div>
+		<div class="admin-setup-event-label">
+		  <input type="checkbox" name="freestyle_team" value="1" id="freestyle1" />
+		  <label for="freestyle1">1 player</label>
+		</div>
+		<div class="admin-setup-event-label">
+		  <input type="checkbox" name="freestyle_team" value="2" id="freestyle2" checked />
+		  <label for="freestyle2">2 players</label>
+		</div>
+		<div class="admin-setup-event-label">
+		  <input type="checkbox" name="freestyle_team" value="3" id="freestyle3" />
+		  <label for="freestyle3">3 players</label>
+		</div>
+	      </div>
+	    </div>
+	  </div>
+	  
+	  <div id="eventSection">
+	    <div class="header">Events</div>
+	    <div class="admin-setup-description">An overall tournament can have up to seven different events being contested. For each of the seven, first indicate whether it is included in this tournament. Then, for each division, enter how many rounds there are (including semis and finals), and how many of those rounds are cumulative. Cumulative rounds start with the first round, and count the sum of a player's scores in all rounds up to that point. If no rounds are cumulative, the box can be left blank.</div>
+	    <div class="admin-setup-section" id="admin-setup-events">
+	      <div class="admin-form-row">
+		<div class="admin-setup-checkbox"></div>
+		<div class="admin-setup-label admin-setup-header">Event</div>
+		<div class="admin-setup-num admin-setup-header" id="header-rounds-O" style="display: none;">Open Rounds</div>
+		<div class="admin-setup-num admin-setup-header" id="header-cumulative-rounds-O" style="display: none;">Open Cumul</div>
+		<div class="admin-setup-num admin-setup-header" id="header-rounds-W" style="display: none;">Women Rounds</div>
+		<div class="admin-setup-num admin-setup-header" id="header-cumulative-rounds-W" style="display: none;">Women Cumul</div>
+		<div class="admin-setup-num admin-setup-header" id="header-rounds-OJ" style="display: none;">Open Junior Rounds</div>
+		<div class="admin-setup-num admin-setup-header" id="header-cumulative-rounds-OJ" style="display: none;">Open Junior Cumul</div>
+		<div class="admin-setup-num admin-setup-header" id="header-rounds-WJ" style="display: none;">Women Junior Rounds</div>
+		<div class="admin-setup-num admin-setup-header" id="header-cumulative-rounds-WJ" style="display: none;">Women Junior Cumul</div>
+		<div class="admin-setup-note admin-setup-header">Notes</div>
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-event-golf">
+		<div class="admin-setup-checkbox"><input type="checkbox" name="events" value="golf" id="golf" /></div>
+		<div class="admin-setup-label"><label for="golf">Disc Golf</label></div>
+		<div class="admin-setup-num" style="display: none"><input id="golf-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="golf-cumulative-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="golf-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="golf-cumulative-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="golf-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="golf-cumulative-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="golf-rounds-WJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="golf-cumulative-rounds-WJ" /></div>
+		<div class="admin-setup-note">Rounds are generally 9 or 18 holes. Normally, all of golf is cumulative.</div>
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-event-distance">
+		<div class="admin-setup-checkbox"><input type="checkbox" name="events" value="distance" id="distance" /></div>
+		<div class="admin-setup-label"><label for="distance">Distance</label></div>
+		<div class="admin-setup-num" style="display: none"><input id="distance-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="distance-cumulative-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="distance-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="distance-cumulative-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="distance-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="distance-cumulative-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="distance-rounds-WJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="distance-cumulative-rounds-WJ" /></div>
+		<div class="admin-setup-note">Many full-format overall tournaments make the first two rounds of distance cumulative.</div>
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-event-accuracy">
+		<div class="admin-setup-checkbox"><input type="checkbox" name="events" value="accuracy" id="accuracy" /></div>
+		<div class="admin-setup-label"><label for="accuracy">Accuracy</label></div>
+		<div class="admin-setup-num" style="display: none"><input id="accuracy-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="accuracy-cumulative-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="accuracy-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="accuracy-cumulative-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="accuracy-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="accuracy-cumulative-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="accuracy-rounds-WJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="accuracy-cumulative-rounds-WJ" /></div>
+		<div class="admin-setup-note">Many full-format overall tournaments make the first two rounds of accuracy cumulative.</div>
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-event-scf">
+		<div class="admin-setup-checkbox"><input type="checkbox" name="events" value="scf" id="scf" /></div>
+		<div class="admin-setup-label"><label for="scf">Self-Caught Flight (SCF)</label></div>
+		<div class="admin-setup-num" style="display: none"><input id="scf-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="scf-cumulative-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="scf-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="scf-cumulative-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="scf-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="scf-cumulative-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="scf-rounds-WJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="scf-cumulative-rounds-WJ" /></div>
+		<div class="admin-setup-note">Many full-format overall tournaments make the first two rounds of SCF cumulative.</div>
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-event-mta">
+		<div class="admin-setup-checkbox"><input type="checkbox" name="events" value="mta" id="mta" /></div>
+		<div class="admin-setup-label"><label for="mta">Maximum Time Aloft (MTA)</label></div>
+		<div class="admin-setup-num" style="display: none"><input id="mta-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="mta-cumulative-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="mta-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="mta-cumulative-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="mta-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="mta-cumulative-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="mta-rounds-WJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="mta-cumulative-rounds-WJ" /></div>
+		<div class="admin-setup-note">A tournament usually offers either SCF or MTA.</div>
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-event-trc">
+		<div class="admin-setup-checkbox"><input type="checkbox" name="events" value="trc" id="trc" /></div>
+		<div class="admin-setup-label"><label for="trc">Throw, Run, and Catch (TRC)</label></div>
+		<div class="admin-setup-num" style="display: none"><input id="trc-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="trc-cumulative-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="trc-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="trc-cumulative-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="trc-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="trc-cumulative-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="trc-rounds-WJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="trc-cumulative-rounds-WJ" /></div>
+		<div class="admin-setup-note">It is rare to have TRC as a stand-alone event.</div>
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-event-discathon">
+		<div class="admin-setup-checkbox"><input type="checkbox" name="events" value="discathon" id="discathon" /></div>
+		<div class="admin-setup-label"><label for="discathon">Discathon</label></div>
+		<div class="admin-setup-num" style="display: none"><input id="discathon-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="discathon-cumulative-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="discathon-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="discathon-cumulative-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="discathon-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="discathon-cumulative-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="discathon-rounds-WJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="discathon-cumulative-rounds-WJ" /></div>
+		<div class="admin-setup-note">Has never been cumulative.</div>
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-event-ddc">
+		<div class="admin-setup-checkbox"><input type="checkbox" name="events" value="ddc" id="ddc" /></div>
+		<div class="admin-setup-label"><label for="ddc">Double Disc Court (DDC)</label></div>
+		<div class="admin-setup-num" style="display: none"><input id="ddc-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><span id="ddc-cumulative-rounds-O"></span></div>
+		<div class="admin-setup-num" style="display: none"><input id="ddc-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><span id="ddc-cumulative-rounds-W"></span></div>
+		<div class="admin-setup-num" style="display: none"><input id="ddc-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><span id="ddc-cumulative-rounds-OJ"></span></div>
+		<div class="admin-setup-num" style="display: none"><input id="ddc-rounds-WJ" /></div>
+		<div class="admin-setup-num" style="display: none"><span id="ddc-cumulative-rounds-WJ"></span></div>
+		<div class="admin-setup-note">Cannot be cumulative.</div>
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-event-freestyle">
+		<div class="admin-setup-checkbox"><input type="checkbox" name="events" value="freestyle" id="freestyle" /></div>
+		<div class="admin-setup-label"><label for="freestyle">Freestyle</label></div>
+		<div class="admin-setup-label"><label for="freestyle">Freestyle</label></div>
+		<div class="admin-setup-num" style="display: none"><input id="freestyle-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="freestyle-cumulative-rounds-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="freestyle-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="freestyle-cumulative-rounds-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="freestyle-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="freestyle-cumulative-rounds-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="freestyle-rounds-WJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="freestyle-cumulative-rounds-WJ" /></div>
+		<div class="admin-setup-note">Has never been cumulative.</div>
+	      </div>
+	    </div>
+	  </div>
+	  
+	  <div id="scoringSection">
+	    <div class="header">Overall Scoring</div>
+	    <div class="admin-setup-section">
+	      <div>
+		Set up the scoring base for each division below. The base is the number of overall points awarded to the winner
+		of an event. Second place gets one less point, and so on until zero is reached.
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-scoring-base-header">
+		<div class="admin-setup-num"></div>
+		<div class="admin-setup-num admin-setup-header" id="header-scoring-base-O" style="display: none">Open</div>
+		<div class="admin-setup-num admin-setup-header" id="header-scoring-base-W" style="display: none">Women</div>
+		<div class="admin-setup-num admin-setup-header" id="header-scoring-base-OJ" style="display: none">Open Junior</div>
+		<div class="admin-setup-num admin-setup-header" id="header-scoring-base-WJ" style="display: none">Women Junior</div>
+	      </div>
+	      <div class="admin-form-row" id="admin-setup-scoring-base">
+		<div class="admin-setup-num">Base:</div>
+		<div class="admin-setup-num" style="display: none"><input id="scoring-base-O" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="scoring-base-W" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="scoring-base-OJ" /></div>
+		<div class="admin-setup-num" style="display: none"><input id="scoring-base-WJ" /></div>
+	      </div>
+	      <div class="admin-form-row">
+		<div><label for="min_events">Minimum number of events played in order to earn overall points:</label></div>
+		<div><input id="min_events" value="1" /></div>
+	      </div>
+	      <!--
+	      <div class="admin-form-row">
+		<input type="checkbox" id="mixed_team_scoring" />
+		<label for="mixed_team_scoring">Allow a player on a non-divisional team to score divisional overall points</label>
+	      </div>
+	      -->
+	    </div>
+	  </div>
+	  
+	  <div class="admin-setup-tournament-button">
+	    <button id="save-tournament-button" type="submit">Save Tournament</button>
+	  </div>
+	</div>
+
+	<div id="admin-players" class="admin-players" style="display:none">
+	  <div class="admin-form-container">
+	    <div class="admin-form-row">
+	      <div>
+		<label for="division-select-players">Division:</label>
+		<select id="division-select-players"></select>
+	      </div>
+	      <div class="pool-select" id="pool-select-players-container" style="display:none">
+		<label for="pool-select-players">Pool:</label>
+		<select name="pool-select-players" id="pool-select-players" tabindex=0 ></select>
+	      </div>
+	      <div>
+		<label for="player">Name:</label>
+		<input type="text" name="player" id="player" />
+	      </div>
+	      <div>
+		<button id="add-player">Add</button>
+	      </div>
+	      <div class="admin-form-item">
+		<div class="admin-setup-checkbox"><input type="checkbox" value="delete-mode" id="delete-mode-players" /></div>
+		<div class="admin-setup-label"><label for="delete-mode-players">Remove players</label></div>
+	      </div>
+	    </div>
+	  </div>
+	  <div id="tournament-players"></div>
+	</div>
+
+	<div id="admin-teams" style="display:none">
+	  <div class="admin-form-container">
+	    <div class="admin-form-row admin-teams-event">
+	      <div id="ddc-container">
+		<input type="radio" name="team-event" value="ddc" id="ddc-teams">
+		<label for="ddc">DDC</label>
+	      </div>
+	      <div id="freestyle-container">
+		<input type="radio" name="team-event" value="freestyle" id="freestyle-teams">
+		<label for="freestyle">Freestyle</label>
+	      </div>
+	    </div>
+	    <div class="admin-form-row">
+	      <div>
+		<label for="division-select-teams">Division:</label>
+		<select id="division-select-teams"></select>
+	      </div>
+	      <div id="player1-container" style="display:none">
+		<label for="player1" id="player1-label">Player 1:</label>
+		<input type="text" name="player1" id="player1" />
+	      </div>
+	      <div id="player2-container" style="display:none">
+		<label for="player2">Player 2:</label>
+		<input type="text" name="player2" id="player2" />
+	      </div>
+	      <div id="player3-container" style="display: none;">
+		<label for="player3">Player 3:</label>
+		<input type="text" name="player3" id="player3" />
+	      </div>
+	      <div>
+		<button id="add-team">Add Team</button>
+	      </div>
+	      <div class="admin-form-item">
+		<div class="admin-setup-checkbox"><input type="checkbox" value="delete-mode" id="delete-mode-teams" /></div>
+		<div class="admin-setup-label"><label for="delete-mode-teams">Remove teams</label></div>
+	      </div>
+	      <div class="admin-form-item">
+		<div class="admin-setup-checkbox"><input type="checkbox" value="show-all-players" id="show-all-players" /></div>
+		<div class="admin-setup-label"><label for="show-all-players">Show all players</label></div>
+	      </div>
+	    </div>
+	  </div>
+	  <div id="tournament-available-players"></div>
+	  <div id="tournament-teams"></div>
+	</div>
+
+	<div id="admin-scores" class="admin-scores" style="display:none">
+	  <div class="admin-form-container">
+	    <div class="admin-form-row">
+	      <div>
+		<label for="division-select-scores">Division:</label>
+		<select id="division-select-scores" ></select>
+	      </div>
+	      <div class="pool-select" id="pool-select-scores-container" style="display:none">
+		<label for="pool-select-scores">Pool:</label>
+		<select name="pool-select-scores" id="pool-select-scores" tabindex=0 ></select>
+	      </div>
+	      <div id="round-select-container">
+		<label for="round-select">Round:</label>
+		<select id="round-select"></select>
+	      </div>
+	      <div class="admin-form-item">
+		<div class="admin-setup-checkbox"><input type="checkbox" value="delete-mode" id="delete-mode-scores" /></div>
+		<div class="admin-setup-label"><label for="delete-mode-scores">Remove scores</label></div>
+	      </div>
+	      <div class="admin-form-item" id="add-playoff-container" style="display:none">
+		<button id="add-playoff">Add Playoff</button>
+	      </div>
+	      <!--
+	      <div class="admin-form-item admin-rank-scoring">
+		<div class="admin-setup-checkbox"><input type="checkbox" value="rank-scoring" id="rank-scoring" /></div>
+		<div><label for="rank-scoring">Rank scoring</label></div>
+	      </div>
+	      <div class="admin-form-item">
+		<div><label for="admin-event-note">Note:</label></div>
+		<div><input id="admin-event-note" /></div>
+	      </div>
+	      -->
+	    </div>
+	    <div class="admin-form-row">
+	      <div class="admin-form-item">
+		<div><label for="admin-score-player">Player:</label></div>
+		<div><input id="admin-score-player" /></div>
+	      </div>
+	      <div class="admin-form-item">
+		<div><label for="admin-score-value">Score:</label></div>
+		<div><input id="admin-score-value" /></div>
+	      </div>
+	      <div>
+		<button id="add-score">Add Score</button>
+	      </div>
+	      <div class="admin-form-item">
+		<span class="hint">SCR = scratch, DNF = did not finish</span>
+	      </div>
+	    </div>
+	  </div>
+	  <div id="tournament-results" class="tournament-results"></div>
+	</div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -100,7 +100,6 @@ const renderTournament = async (tournamentId, page = DEFAULT_PAGE, division, poo
     clearCacheForPage(curId, curPage);
     renderPage(curId, curPage, curDivision, curPool);
   });
-  // addPageLink('export', ID.TOURNAMENT_NAV_TOP);
 
   // bottom nav bar
   eventData.forEach((eventObj) => {
@@ -125,6 +124,12 @@ const renderPage = async (tournamentId, page = DEFAULT_PAGE, division, pool) => 
 
   $('.page-link').removeClass('current');
   $(`#${page}`).addClass('current');
+
+  $('#export').remove();
+  if (page !== 'players') {
+    addPageLink('export', ID.TOURNAMENT_NAV_TOP, undefined, () => doExport());
+  }
+
   let divisions = GLOBAL.tournament.divisions.split(',');
   if (GLOBAL.tournament.age_divisions === '1') {
     // expand to include age divisions
@@ -135,7 +140,6 @@ const renderPage = async (tournamentId, page = DEFAULT_PAGE, division, pool) => 
       divisions = [...divisions, ...DIV_LIST['W']];
     }
   }
-//  populateDivisionSelect(ID.DIVISION_SELECT, uniquify(divisions), page, division, page === 'overall' || isTeamEvent(page));
   populateDivisionSelect(ID.DIVISION_SELECT, uniquify(divisions), page, division, page !== 'players');
 
   if (GLOBAL.tournament.pools && !['ddc', 'freestyle', 'overall'].includes(page)) {
@@ -285,4 +289,45 @@ const showScfResults = async (tournamentId) => {
   } else {
     setContent(ID.TOURNAMENT_RESULTS, 'No results have been recorded yet.');
   }
+};
+
+const doExport = (page = GLOBAL.curPage) => {
+  console.log('*** Export ' + page);
+
+  let tableId = 'results-table';
+  if (window.curPage === 'players') {
+    tableId = 'playerListTable';
+  }
+  
+  const rows = $('#' + tableId + ' tr');
+  if (rows.length === 0) {
+    showError("No results to export", 5);
+    return;
+  }
+
+  // no need to sanitize data since it does not contain commas or double quotes
+  const csv = [];
+  const header = rows.first().find('th').map((_, element) => $(element).text()).get().join(',');
+  csv.push(header);
+  const body = rows.slice(1);
+  body.each((_, row) => {
+    const content = $(row).find('td').map((_, element) => $(element).text()).get().join(',');
+    csv.push(content);
+  });
+
+  const csvContent = csv.join('\n');
+  console.log(csvContent);
+
+  const filename = `${page}.csv`;
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showInfo(`${capitalizeEvent(page)} results exported to ${filename}`, 5);
 };

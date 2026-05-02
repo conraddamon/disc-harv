@@ -148,6 +148,9 @@ const registerParamChangeHandler = (handler) => paramChangeHandler = handler;
 
 const handleNavigationEvent = (event) => {
   const newUrl = new URL(event.destination.url);
+  if (newUrl.protocol === 'blob:') {
+    return; // export done, don't try to navigate
+  }
   console.log('Location changed via navigation API to:', newUrl.toString());
   const newParams = newUrl.searchParams;
   if (newParams.toString() !== oldParams.toString()) {

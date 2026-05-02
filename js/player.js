@@ -43,7 +43,7 @@ const renderPlayerPage = async (tournamentId, division, playerId) => {
     clearCacheForPage(curId, 'player');
     renderPlayerPage(curId, curDivision, curPlayerId);
   });
-  addPageLink('export', ID.TOURNAMENT_NAV_TOP);
+  // addPageLink('export', ID.TOURNAMENT_NAV_TOP);
 
   const divsToShow = getImpliedDivisions(player.division);
   populateDivisionSelect(ID.DIVISION_SELECT, divsToShow.join(','), undefined, division, true);

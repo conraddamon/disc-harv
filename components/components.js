@@ -41,11 +41,11 @@ const getTournamentHtml = (tournament, addSeparator) => {
   const end = (new Date(tournament.end)).toLocaleString('default', { month: 'long', day: 'numeric' });
 
   return `
+${addSeparator ? '<div class="separator"></div>' : ''}
 <div class="tournament-listing" onClick="updateQueryParams({ id: ${tournament.id} })">
   <div class="tournament-title">${year} ${tournament.name}</div>
   <div>${start} - ${end} in ${tournament.location}</div>
 </div>
-${addSeparator ? '<div class="separator"></div>' : ''}
   `;
 };
 

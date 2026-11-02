@@ -128,7 +128,8 @@ elseif ($op == 'add-team') {
   $player1 = get_input('player1', 'get');
   $player2 = get_input('player2', 'get');
   $player3 = get_input('player3', 'get');
-  $sql = "INSERT INTO team(event_id, player1, player2, player3) VALUES($eventId, $player1, $player2, $player3)";
+  $division = get_input('division', 'get');
+  $sql = "INSERT INTO team(event_id, player1, player2, player3, division) VALUES($eventId, $player1, $player2, $player3, $division)";
   $result = db_query($sql);
 }
 

@@ -126,18 +126,12 @@ const showPlayerEventResults = async (tournamentId, division, playerId) => {
     const event = events[i];
     const eventId = getEventId(event);
     if (event === 'scf') {
-      // const mtaEventId = getEventId('mta');
-      // const mtaData = resultData.filter((result) => result.event_id === mtaEventId);
-      // const trcEventId = getEventId('trc');
-      // const trcData = resultData.filter((result) => result.event_id === trcEventId);
-      const mtaData = await getEventResults(tournamentId, 'mta', division);
-      const trcData = await getEventResults(tournamentId, 'trc', division);
-      const { mta: mtaResults, trc: trcResults, scf: scfResults } = await getScfResults(tournamentId, division, undefined, { mta: mtaData, trc: trcData });
+      const mtaData = await getEventResults('mta', division);
+      const trcData = await getEventResults('trc', division);
+      const { mta: mtaResults, trc: trcResults, scf: scfResults } = await getScfResults(division, undefined, { mta: mtaData, trc: trcData });
       displayPlayerEventResults(playerId, scfResults, event, division, { mta: mtaResults, trc: trcResults });
     } else {
-      // const eventData = resultData.filter((result) => result.event_id === eventId);
-      // const eventResults = await getEventResults(tournamentId, event, division, undefined, eventData);
-      const eventResults = await getEventResults(tournamentId, event, division);
+      const eventResults = await getEventResults(event, division);
       console.log(eventResults.length + ' results for ' + event);
       if (isTeamEvent(event)) {
 	const team = Object.values(GLOBAL.teamInfo[event]).find((t) => [t.player1, t.player2, t.player3].includes(playerId));

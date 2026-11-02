@@ -176,7 +176,7 @@ const renderPage = async (tournamentId, page = DEFAULT_PAGE, division, pool) => 
     case 'trc':
     case 'ddc':
     case 'freestyle': {
-      showEventResults(tournamentId, page);
+      showEventResults(page);
       break;
     }
     case 'scf': {
@@ -229,10 +229,10 @@ const showRegisteredPlayers = async (tournamentId) => {
 
   TEAM_EVENTS.forEach(event => {
     const allTeams = Object.values(GLOBAL.teamInfo[event]);
-    const teams = allTeams.filter((team) => divisionMatch(team.id, division, true));
+    const teams = allTeams.filter((team) => teamDivisionMatch(team, division));
     if (teams.length > 0) {
       const content = showPlayers(teams, { numCols: 3, showIndexes: true, showDivisions: false, nameClass: 'team-name' });
-      appendContent(containerId, `<div class="header">${capitalizeEvent(event)} Teams</div>`);
+      appendContent(containerId, `<div class="header">${capitalizeEvent(event)} Teams (${teams.length})</div>`);
       appendContent(containerId, `<div>${content}</div>`);
     }
   });
@@ -241,20 +241,10 @@ const showRegisteredPlayers = async (tournamentId) => {
 };
 
 // fetch and display results for an event
-const showEventResults = async (tournamentId, event) => {
+const showEventResults = async (event) => {
   const division = getDivision();
   const pool = getPool();
-  let results = await getEventResults(tournamentId, event, division, pool) || [];
-
-  // HACK for 2026 VA states
-//  results = results.filter((result) => !(division === 'O' && result.player_id === '1510'));
-
-  results = results
-    .map((result) => {
-      const teamEvent = isTeamEvent(GLOBAL.eventById[result.event_id].name);
-      result.nonQualified = isTeamEvent && !divisionMatch(result.player_id, division, teamEvent, { scoringMode: true, looseMatching: isVirginiaStates() });
-      return result;
-    });
+  let results = await getEventResults(event, division, pool) || [];
 
   if (results.length > 0) {
     console.log(results.length + ' results for ' + event + ' in showEventResults');
@@ -264,26 +254,20 @@ const showEventResults = async (tournamentId, event) => {
   }
 };
 
-const getScfResults = async (tournamentId, division, pool, scfData) => {
+const getScfResults = async (division, pool, scfData) => {
   scfData = scfData || {};
-  const getScfResults = async (event) => {
-    const eventId = getEventId(event);
-    const resultData = scfData[event] ? scfData[event] : await getResults({ event, eventId, sort: 'round' });
-    return resultData ? filterResultsByDivision(resultData, division, false, false) : [];
-  };
-
-  const mtaResults = await getScfResults('mta');
-  const trcResults = await getScfResults('trc');
+  const mtaResults = await getEventResults('mta', division);
+  const trcResults = await getEventResults('trc', division);
   const scfResults =  getScfData(mtaResults, trcResults);
 
   return { mta: mtaResults, trc: trcResults, scf: scfResults };
 };
 
 // fetch and display results for SCF
-const showScfResults = async (tournamentId) => {
+const showScfResults = async () => {
   const division = getDivision();
   const pool = getPool();
-  const { mta: mtaResults, trc: trcResults, scf: scfResults } = await getScfResults(tournamentId, division, pool);
+  const { mta: mtaResults, trc: trcResults, scf: scfResults } = await getScfResults(division, pool);
   if (scfResults.length > 0) {
     displayResults(scfResults, 'scf', division, undefined, { mta: mtaResults, trc: trcResults });
   } else {

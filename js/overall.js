@@ -1,6 +1,6 @@
 const getOverallResults = async (tournamentId, division) => {
 
-  let resultData = await getResults({ tournamentId, sort: 'round' });
+  let resultData = await getResults({ tournamentId, sort: 'round', force: true });
 
   // remove scratches
   resultData = resultData ? resultData.filter((result) => result.score != -2) : [];
@@ -11,23 +11,20 @@ const getOverallResults = async (tournamentId, division) => {
   }
 
   // get divisional results
-  resultData = resultData
-    .filter((result) => divisionMatch(result.player_id, division, isTeamEvent(GLOBAL.eventById[result.event_id].name), false));
-
-  /*
-  const isVirginiaStates = GLOBAL.tournament.name.includes('Virginia');
-  if (isVirginiaStates && isJuniorDivision(division)) {
-    const ddcEventId = getEventId('ddc');
-    const freestyleEventId = getEventId('freestyle');
-    resultData = resultData.filter((result) => ![ddcEventId, freestyleEventId].includes(result.event_id));
-  }
-*/
+  resultData = resultData.filter((result) => {
+    const teamEvent = isTeamEvent(GLOBAL.eventById[result.event_id].name);
+    return teamEvent ? teamDivisionMatch(GLOBAL.teamById[result.player_id], division, { looseMatching: true }) : divisionMatch(result.player_id, division);
+  });
 
   // mark non-qualifying teams (at least one team member doesn't fit division)
   resultData = resultData
     .map((result) => {
-      const teamEvent = isTeamEvent(GLOBAL.eventById[result.event_id].name);
-      result.nonQualified = isTeamEvent && !divisionMatch(result.player_id, division, teamEvent, true);
+      if (isTeamEvent(GLOBAL.eventById[result.event_id].name)) {
+	const team = GLOBAL.teamById[result.player_id];
+	if (!teamDivisionMatch(team, division, { checkPlayers: true })) {
+	  result.nonQualified = true;
+	}
+      }
       return result;
     });
 
@@ -37,6 +34,9 @@ const getOverallResults = async (tournamentId, division) => {
   // calculate SCF results if needed, replace MTA/TRC results with those
   if (hasEvent('scf')) {
     const getScfResults = (scfEvent) => {
+      if (!GLOBAL.eventByName[scfEvent]) {
+	return [];
+      }
       const scfEventId = GLOBAL.eventByName[scfEvent].id;
       const scfEventData = resultData.filter((result) => result.event_id === scfEventId); // pull out SCF event data
       resultData = resultData.filter((result) => result.event_id !== scfEventId); // remove that data from the main list

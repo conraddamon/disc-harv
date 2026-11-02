@@ -21,7 +21,7 @@ const DIV_NAME = {
 // order to present divisions in
 const DIV_ORDER = [ 'O', 'OM', 'OGM', 'OSGM', 'OL', 'OJ', 'W', 'WM', 'WGM', 'WSGM', 'WL', 'WJ', 'MX' ];
 
-// for each division, the divisions that include it; eg every OGM is also a OM
+// for each division, the divisions within its class that include it; eg every OGM is also a OM
 const DIV_LIST = {};
 DIV_LIST['O'] = ['O', 'OM', 'OGM', 'OSGM', 'OL'];
 DIV_LIST['OM'] = ['OM', 'OGM', 'OSGM', 'OL'];

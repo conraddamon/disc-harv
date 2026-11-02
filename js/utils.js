@@ -294,6 +294,17 @@ const getDivision = (page) => {
 
 const getDefaultDivision = (page) => page === 'players' ? 'ALL' : 'O';
 
+// if a team lacks a division, determine one based on its members
+const getTeamDivision = (team) => {
+  const teamMembers = getTeamMembers(team);
+  for (let div of ['WJ', 'OJ', 'W']) {
+    if (teamMembers.every((memberId) => divisionMatch(memberId, div, false))) {
+      return div;
+    }
+  }
+  return 'O';
+};
+
 /**
  * Returns true if the player/team division matches the given division. For an individual player, it's
  * pretty simple: a player matches with their own division and the more restrictive age divisions in
@@ -324,19 +335,52 @@ const divisionMatch = (id, division, isTeamEvent, options = {}) => {
   // team matching
   const team = typeof id !== 'string' && typeof id !== 'number' ? id : GLOBAL.teamById[id];
   if (team) {
+    if (team.division) {
+      return playerMatch(team, division, DIV_LIST);
+    }
     const teamMembers = getTeamMembers(team);
     if (options.looseMatching) {
-      return teamMembers.some(memberId => playerMatch(GLOBAL.playerById[memberId], division, DIV_LIST_OVERALL_TEAM));
+      return teamMembers.some((memberId) => playerMatch(GLOBAL.playerById[memberId], division, DIV_LIST_OVERALL_TEAM));
     }
     if (options.scoringMode) {
-      return teamMembers.some(memberId => playerMatch(GLOBAL.playerById[memberId], division, DIV_LIST)) &&
-	teamMembers.every(memberId => playerMatch(GLOBAL.playerById[memberId], division, DIV_LIST_OVERALL_TEAM));
+      return teamMembers.some((memberId) => playerMatch(GLOBAL.playerById[memberId], division, DIV_LIST)) &&
+	teamMembers.every((memberId) => playerMatch(GLOBAL.playerById[memberId], division, DIV_LIST_OVERALL_TEAM));
     }
-    return teamMembers.some(memberId => playerMatch(GLOBAL.playerById[memberId], division, DIV_LIST));
+    return teamMembers.some((memberId) => playerMatch(GLOBAL.playerById[memberId], division, DIV_LIST));
   }
 
   console.log(`divisionMatch failed to find ID: ${id}`);
   return false;
+};
+
+const getClass = (division) => ['OJ', 'WJ'].includes(division) ? division : division[0];
+
+const teamDivisionMatch = (team, division, options = {}) => {
+  if (division === 'ALL') {
+    return true;
+  }
+
+  if (!options.checkPlayers) {
+    if (['O', 'W', 'OJ', 'WJ'].includes(division) && team.division === division) {
+      return true;
+    }
+    if (team.division && getClass(division) !== getClass(team.division)) {
+      return false;
+    }
+  }
+
+  const teamMembers = getTeamMembers(team);
+  if (options.looseMatching) {
+    return teamMembers.some((playerId) => {
+      const player = GLOBAL.playerById[playerId];
+      return getClass(division) === getClass(team.division || player.division) && DIV_LIST_OVERALL_TEAM[division].includes(player.division);
+    });
+  }
+
+  return teamMembers.every((playerId) => {
+    const player = GLOBAL.playerById[playerId];
+    return getClass(division) === getClass(team.division || player.division) && DIV_LIST_OVERALL_TEAM[division].includes(player.division);
+  });
 };
 
 const isOpenDivision = (division) => division.startsWith('O');
@@ -352,8 +396,21 @@ const getDivisionAdjective = (division) => {
 // Filters out results that don't match the given division and returns the resulting list.
 const filterResultsByDivision = (results, division, isTeamEvent) => (results || []).filter(result => divisionMatch(result.player_id, division, isTeamEvent, { looseMatching: isVirginiaStates() && GLOBAL.curPage === 'freestyle' }));
 
+
+const filterResultsByDivision1 = (results, division, event) => {
+  if (isTeamEvent(event)) {
+    return results.filter((result) => {
+      const team = GLOBAL.teamById[result.player_id];
+      return teamDivisionMatch(team, division, { looseMatching: isVirginiaStates() && GLOBAL.curPage === 'freestyle' });
+    });
+  }
+  return results.filter((result) => divisionMatch(result.player_id, division, false));
+};
+
 // Parses an encoded string with numerical values that can vary by division using the HARV encoding method.
 const getValueByDivision = (codeStr, division) => {
+
+  const divClass = getClass(division);
 
   const codes = codeStr.split(/\s*;\s*/);
 
@@ -361,7 +418,7 @@ const getValueByDivision = (codeStr, division) => {
   for (let i = 0; i < codes.length; i++) {
     const code = codes[i];
     const [ div, value ] = code.split(':');
-    if (div === division) {
+    if (div === divClass) {
       return Number(value);
     }
     if (!value) {
@@ -624,6 +681,17 @@ const formatScore = (score, event, options) => {
   
   return String(Number(score));
 };
+
+// Converts a score from display to database version.
+const unformatScore = (score, event) => {
+  event = event || window.curEvent;
+  if (event === 'discathon' && !($.isNumeric(score))) {
+    const [min, sec] = score.split(':');
+    return (60 * Number(min)) + Number(sec);
+  }
+  
+  return Number(score);
+}
 
 /*** SCF utilities ***/
 

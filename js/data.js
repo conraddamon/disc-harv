@@ -84,10 +84,11 @@ const getEvents = async (args) => getData(`events-${args.tournamentId}`, 'get-ev
 const getTeams = async (args) => getData(`teams-${args.eventId}`, 'get-teams', args);
 const getResults = async (args) => getData(args.eventId ? `results-${args.eventId}` : `results-${args.tournamentId}`, 'get-results', args);
 
-const getEventResults = async (tournamentId, event, division, pool, eventData) => {
+const getEventResults = async (event, division, pool, eventData) => {
   const eventObj = GLOBAL.eventByName[event];
   const resultData = eventData ? eventData : await getResults({ event, eventId: eventObj.id, sort: 'round' });
-  const results = filterResultsByDivision(resultData, division, isTeamEvent(event), false);
+//  const results = filterResultsByDivision(resultData, division, isTeamEvent(event), false);
+  const results = filterResultsByDivision1(resultData, division, event);
   return filterResultsByPool(results, pool);
 };
 

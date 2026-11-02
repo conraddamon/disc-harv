@@ -88,7 +88,9 @@ const renderTournament = async (tournamentId, page = DEFAULT_PAGE, division, eve
   }
 
   // tournament pages require auth
+  /*
   const token = await getToken(tournamentId);
+  console.log('*** token for ' + tournamentId + ': ' + token);
   const authCookie = await getCookie('auth');
   const userToken = decodeURIComponent(authCookie);
   if (userToken !== token) {
@@ -101,6 +103,7 @@ const renderTournament = async (tournamentId, page = DEFAULT_PAGE, division, eve
       navigateTo(ADMIN_HOME);
     }
   }
+  */
 
   $(`#${ID.HOME}`).hide();
   $(`#${ID.TOURNAMENT}`).show();

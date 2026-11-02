@@ -9,8 +9,8 @@ const setupScoresPage = (tournamentId) => {
 
   // events nav bar
   const events = Object.keys(GLOBAL.eventByName);
-  events.forEach((eventName) => {
-    if (eventName !== 'scf') {
+  EVENT_ORDER.forEach((eventName) => {
+    if (eventName !== 'scf' && events.includes(eventName)) {
       addPageLink(eventName, ID.TOURNAMENT_NAV_EVENTS, capitalizeEvent(eventName), () => updateQueryParams({ event: eventName }));
     }
   });
@@ -76,7 +76,7 @@ const getFilteredEventResults = async (tournamentId) => {
   const division = getDivision('scores');
   const round = getRound();
   const pool = round === 1 ? getPool('scores') : '';
-  const results = await getEventResults(tournamentId, event, division, pool, undefined);
+  const results = await getEventResults(event, division, pool, undefined);
 
   // last round: check for ties for podium (up to third place)
   let showPlayoff = false;
@@ -139,6 +139,10 @@ const addScore = async (tournamentId) => {
   const round = getRound();
 
   const player = $('#admin-score-player').val();
+  if (!player) {
+    return showError(`Missing player`);
+  }
+
   if ($('#delete-mode-scores').is(':checked')) {
     handleScoreDelete(tournamentId, player);
     $('#admin-score-player').val('').focus();
@@ -146,13 +150,17 @@ const addScore = async (tournamentId) => {
   }
   
   let score = $('#admin-score-value').val();
-  if (!player || !score) {
-    return;
+  if (!score) {
+    return showError(`Missing score`);
   }
   if (score === 'SCR') {
     score = '-2';
   } else if (score === 'DNF') {
     score = '-1';
+  }
+  score = unformatScore(score, event);
+  if (!score && score !== 0) {
+    return showError(`Invalid score ${score}`);
   }
 
   let playerObj = GLOBAL.playerByName[player];

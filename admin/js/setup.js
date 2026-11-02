@@ -5,7 +5,7 @@ const showTournamentForm = async (tournamentId) => {
   console.log('*** token: ' + token);
   
   $('#name, #location, #start, #end').on('change', handleTournamentInfoChange);
-  $('#scf,#mta,#trc').on('change', handleScfChange);
+  $('#has-scf,#has-mta,#has-trc').on('change', handleScfChange);
   let divisions;
   let tournamentData;
   if (tournamentId) {
@@ -21,9 +21,9 @@ const showTournamentForm = async (tournamentId) => {
   let eventData;
   if (tournamentId) {
     eventData = await getEvents({ tournamentId });
-    handleScfChange();
   }
   loadTournament(tournamentData, eventData);
+  handleScfChange();
   $('input[name="divisions"]').change(() => {
     renderEventsTable();
     renderScoringTable();
@@ -75,16 +75,16 @@ const handleTournamentInfoChange = () => {
 // A tournament with SCF does not need to offer MTA and TRC. Conversely, one with MTA or TRC does
 // not separately offer SCF.
 const handleScfChange = (ev) => {
-  if ($('#scf').is(':checked')) {
+  if ($('#has-scf').is(':checked')) {
     $('#admin-setup-event-mta,#admin-setup-event-trc').hide();
-    $('#mta,#trc').prop('checked', false);
+    $('#has-mta,#has-trc').prop('checked', false);
   } else {
     $('#admin-setup-event-mta,#admin-setup-event-trc').show();
   }
 
-  if (ev && $('#mta').is(':checked') || $('#trc').is(':checked')) {
+  if (ev && $('#has-mta').is(':checked') || $('#has-trc').is(':checked')) {
     $('#admin-setup-event-scf').hide();
-    $('#scf').prop('checked', false);
+    $('#has-scf').prop('checked', false);
   } else {
     $('#admin-setup-event-scf').show();
   }
@@ -146,7 +146,7 @@ const databaseToForm = (tournamentData, eventData) => {
 
   (eventData || []).forEach((eventObj) => {
     const event = eventObj.name;
-    formData[event] = true;
+    formData[`has-${event}`] = true;
     const rounds = decodeDatabaseValue(eventObj.rounds, divisions);
     const cumulativeRounds = decodeDatabaseValue(eventObj.cumulative_rounds, divisions);
     divisions.forEach((div) => {
@@ -239,7 +239,7 @@ const formToDatabase = async () => {
   }
 
   const eventData = EVENT_ORDER
-    .filter((event) => $(`#${event}`).is(':checked'))
+    .filter((event) => $(`#has-${event}`).is(':checked'))
     .map((event) => ({
       name: event,
       rounds: getEncodedDivisionalValues(`${event}-rounds`, divisions),
@@ -267,7 +267,7 @@ const loadTournament = (tournamentData, eventData) => {
       $('input[name="freestyle_team"]').each(function() {
 	$(this).prop('checked', formData['freestyle_team'].includes($(this).val()));
       });
-    } else if (EVENT_ORDER.includes(field)) {
+    } else if (EVENT_ORDER.includes(field.replace('has-', ''))) {
       $(`#${field}`).prop('checked', formData[field]);
     } else {
       const el = $(`#${field}`);
@@ -365,6 +365,15 @@ const saveTournament = async (tournamentId) => {
   }
 
   const resultData = await getResults({ tournamentId });
+
+  const addNewEvent = async (keys, values, addTournamentId = true) => {
+    if (addTournamentId) {
+      keys.push('tournament_id');
+      values.push(tournamentId || newTournamentId);
+    }
+    const eventId = await addEvent(keys, values);
+    console.log('new event ID for ' + eventObj.name + ': ' + eventId);
+  };
   
   for (let i = 0; i < newEventData.length; i++) {
     const eventObj = newEventData[i];
@@ -396,10 +405,15 @@ const saveTournament = async (tournamentId) => {
 	}
       }
     } else {
-      keys.push('tournament_id');
-      values.push(tournamentId || newTournamentId);
-      const eventId = await addEvent(keys, values);
-      console.log('new event ID for ' + eventObj.name + ': ' + eventId);
+      addNewEvent(keys, values);
+      if (eventObj.name === 'scf') {
+	if (!GLOBAL.eventByName['mta']) {
+	  addNewEvent(keys, values.map((val) => val === "'scf'" ? "'mta'": val), false);
+	}
+	if (!GLOBAL.eventByName['trc']) {
+	  addNewEvent(keys, values.map((val) => val === "'scf'" ? "'trc'": val), false);
+	}
+      }
       updated = true;
     }
   }

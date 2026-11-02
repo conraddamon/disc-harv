@@ -166,20 +166,20 @@ const handleTeamAdd = async (tournamentId) => {
 
   const teamName = getTeamName([player1Name, player2Name, player3Name]);
   const eventId = getEventId(event);
-  const newTeam = { event, event_id: eventId, name: teamName, player1: player1.id, player2: player2.id, player3: player3 ? player3.id : '0' };
+  const newTeam = { event, event_id: eventId, name: teamName, player1: player1.id, player2: player2 ? player2.id : '0', player3: player3 ? player3.id : '0', division };
   let warning = '';
   if (!divisionMatch(newTeam, division, true, { scoringMode: true })) {
     warning = `NOTE: ${teamName} is not a valid team in the ${DIV_NAME[division]} division and will finish below qualifying teams with regard to overall points.`;
   }
 
-  const teamId = await addTeam({ eventId, player1: player1.id, player2: player2.id, player3: player3 ? player3.id : '0' });
+  const teamId = await addTeam({ eventId, player1: player1.id, player2: player2 ? player2.id : '0', player3: player3 ? player3.id : '0', division: quote(division) });
   if (!teamId) {
     return showError(`Failed to add team ${teamName}`);
   }
 
   showInfo(`${teamName} added to ${DIV_NAME[division]}. ${warning}`);
 
-  const teamObj = { event, event_id: eventId, id: String(teamId), name: teamName, player1: player1.id, player2: player2.id, player3: player3 ? player3.id : '0' };
+  const teamObj = { ...newTeam, id: String(teamId) };
   GLOBAL.availablePlayers[event] = GLOBAL.availablePlayers[event].filter((player) => !names.includes(player.name));
   GLOBAL.teamInfo[event][teamId] = teamObj;
   GLOBAL.teamById[teamId] = teamObj;
